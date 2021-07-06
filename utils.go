@@ -124,6 +124,16 @@ func checkJSONInteger(what interface{}) (isInt bool) {
 
 }
 
+func checkJSONumber(what interface{}) (isInt bool) {
+
+	jsonNumber := what.(json.Number)
+
+	_, isValidNumber := new(big.Rat).SetString(string(jsonNumber))
+
+	return isValidNumber
+
+}
+
 // same as ECMA Number.MAX_SAFE_INTEGER and Number.MIN_SAFE_INTEGER
 const (
 	maxJSONFloat = float64(1<<53 - 1)  // 9007199254740991.0 	 2^53 - 1

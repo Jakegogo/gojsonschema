@@ -1,3 +1,6 @@
+.idea/*
+*.i64
+*.test
 *.sw[nop]
 *.iml
 .vscode/

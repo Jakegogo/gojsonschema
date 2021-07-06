@@ -27,6 +27,7 @@ package gojsonschema
 
 import (
 	"encoding/json"
+	"github.com/mitchellh/mapstructure"
 	"math/big"
 	"reflect"
 	"regexp"
@@ -113,6 +114,32 @@ func (v *subSchema) validateRecursive(currentSubSchema *subSchema, currentNode i
 		v.validateCommon(currentSubSchema, currentNode, result, context)
 
 	} else { // Not a null value
+
+		isRequiredNumber := currentSubSchema.types.Contains(TYPE_NUMBER) || currentSubSchema.types.Contains(TYPE_INTEGER)
+
+		if isRequiredNumber && !isJSONNumber(currentNode) {
+			var str string
+			if err := mapstructure.WeakDecode(currentNode, &str); err == nil {
+				num := json.Number(str)
+				if checkJSONumber(num) {
+					v.validateRecursive(currentSubSchema, num, result, context)
+					return
+				}
+			}
+		}
+
+
+		isRequiredBool := currentSubSchema.types.Contains(TYPE_BOOLEAN)
+		isBool := reflect.ValueOf(currentNode).Kind() == reflect.Bool
+
+		if isRequiredBool && !isBool {
+			var b bool
+			if err := mapstructure.WeakDecode(currentNode, &b); err == nil {
+				v.validateRecursive(currentSubSchema, b, result, context)
+				return
+			}
+		}
+
 
 		if isJSONNumber(currentNode) {
 
